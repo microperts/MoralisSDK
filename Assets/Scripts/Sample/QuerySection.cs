@@ -22,6 +22,8 @@ public class QuerySection : MonoBehaviour
 
     public async void OnClick_ERC20TokenCount()
     {
+        Common.Instance.contractId = ipfContractId.text;
+
         Debug.Log("Quering ERC20 Token Count");
         var balance = await Token.Instance.GetBalance();
         StatusSection.Instance.SetStatus(balance.ToString());
@@ -29,6 +31,8 @@ public class QuerySection : MonoBehaviour
 
     public async void OnClick_NFTCountByContract()
     {
+        Common.Instance.contractId = ipfContractId.text;
+
         Debug.Log("Quering NFT Count By Contract");
         var balance = await NFT.Instance.GetUniqueCount();
         StatusSection.Instance.SetStatus(balance.ToString());
