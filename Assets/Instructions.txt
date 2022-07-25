@@ -1,0 +1,3 @@
+Moralis SDK Package
+1. Import Package in Unity Project.
+2. Create new authentication kit in the Scene.
