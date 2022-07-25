@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using MoralisSDK;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,18 +13,24 @@ public class QuerySection : MonoBehaviour
 
     public TMP_InputField ipfContractId;
 
-    public void OnClick_NativeTokenCount()
+    public async void OnClick_NativeTokenCount()
     {
         Debug.Log("Quering Native Token Count");
+        var balance = await Native.Instance.GetBalance();
+        StatusSection.Instance.SetStatus(balance.ToString());
     }
 
-    public void OnClick_ERC20TokenCount()
+    public async void OnClick_ERC20TokenCount()
     {
         Debug.Log("Quering ERC20 Token Count");
+        var balance = await Token.Instance.GetBalance();
+        StatusSection.Instance.SetStatus(balance.ToString());
     }
 
-    public void OnClick_NFTCountByContract()
+    public async void OnClick_NFTCountByContract()
     {
         Debug.Log("Quering NFT Count By Contract");
+        var balance = await NFT.Instance.GetUniqueCount();
+        StatusSection.Instance.SetStatus(balance.ToString());
     }
 }
