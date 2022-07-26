@@ -16,24 +16,23 @@ public class QuerySection : MonoBehaviour
     public async void OnClick_NativeTokenCount()
     {
         Debug.Log("Quering Native Token Count");
+        StatusSection.Instance.SetStatus("Working");
         var balance = await Native.Instance.GetBalance();
         StatusSection.Instance.SetStatus(balance.ToString());
     }
 
     public async void OnClick_ERC20TokenCount()
     {
-        Common.Instance.contractId = ipfContractId.text;
-
         Debug.Log("Quering ERC20 Token Count");
+        StatusSection.Instance.SetStatus("Working");
         var balance = await Token.Instance.GetBalance();
         StatusSection.Instance.SetStatus(balance.ToString());
     }
 
     public async void OnClick_NFTCountByContract()
     {
-        Common.Instance.contractId = ipfContractId.text;
-
         Debug.Log("Quering NFT Count By Contract");
+        StatusSection.Instance.SetStatus("Working");
         var balance = await NFT.Instance.GetUniqueCount();
         StatusSection.Instance.SetStatus(balance.ToString());
     }

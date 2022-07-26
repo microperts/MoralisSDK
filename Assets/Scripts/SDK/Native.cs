@@ -41,42 +41,26 @@ namespace MoralisSDK
             return balance;
         }
 
-        public async Task<bool> Send(int transferAmount, string toAddress)
+        public async Task<bool> Send(decimal transferAmount, string toAddress)
         {
             string fromAddress = Common.Instance.moralisUser.ethAddress;
 
             var HexBigIntegerValue = new HexBigInteger(UnitConversion.Convert.ToWei(transferAmount));
-            string txnHash = "";
 
+            string txnHash;
             try
             {
                 // Execute the transaction.
                 txnHash = await Moralis.SendTransactionAsync(toAddress, HexBigIntegerValue);
-                Debug.Log($"Transferring {transferAmount} ETH from {fromAddress} to {toAddress}...  TxnHash: {txnHash}");
+                Debug.Log($"Transferring {transferAmount} from {fromAddress} to {toAddress}...  TxnHash: {txnHash}");
             }
             catch (Exception exp)
             {
-                Debug.Log($"<color=red>Transfer of {transferAmount} ETH from {fromAddress} to {toAddress} failed! with error {exp}</color>");
+                Debug.Log($"<color=red>Transfer of {transferAmount} from {fromAddress} to {toAddress} failed! with error {exp}</color>");
                 return false;
             }
 
-            BlockTransaction blockTransaction = null;
-
-            do
-            {
-                blockTransaction = await Moralis.Web3Api.Native.GetTransaction(txnHash, Moralis.CurrentChain.EnumValue);
-                if (blockTransaction == null)
-                {
-                    Debug.LogError($"Unable to get block transaction, envaluation failed");
-                    return false;
-                }
-
-                await UniTask.Delay(1000);
-
-            } while (blockTransaction.ReceiptStatus == "0");
-
-            Debug.Log($"<color=green>Transfered {transferAmount} ETH from {fromAddress} to {toAddress}.  TxnHash: {txnHash}</color>");
-            return true;
+            return await Common.Instance.IsTransactionSuccess(txnHash);
         }
     }
 }

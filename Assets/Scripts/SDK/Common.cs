@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using MoralisUnity;
 using MoralisUnity.Platform.Objects;
 using MoralisUnity.Web3Api.Models;
@@ -32,6 +33,38 @@ public class Common : MonoBehaviour
     private async void Start()
     {
         moralisUser = await Moralis.GetUserAsync();
-        contractId = contractId.ToLower();
+    }
+
+    public async Task<bool> IsTransactionSuccess(string txnHash)
+    {
+        BlockTransaction blockTransaction;
+        do
+        {
+            blockTransaction = await Moralis.Web3Api.Native.GetTransaction(txnHash, Moralis.CurrentChain.EnumValue);
+
+            if (blockTransaction == null)
+            {
+                Debug.Log($"Unable to get block transaction, Waiting for block transaction");
+            }
+
+            await UniTask.Delay(1000);
+
+        } while (blockTransaction == null);
+
+        string fromAddress = blockTransaction.FromAddress;
+        string toAddress = blockTransaction.ToAddress;
+
+        if (blockTransaction.ReceiptStatus == "0")
+        {
+            Debug.Log($"<color=red>Transfer Failed from {fromAddress} to {toAddress}.  TxnHash: {txnHash}</color>");
+            Debug.Log(blockTransaction.ToString());
+            return false;
+        }
+        else
+        {
+            Debug.Log($"<color=green>Transfered Success from {fromAddress} to {toAddress}.  TxnHash: {txnHash}</color>");
+            Debug.Log(blockTransaction.ToString());
+            return true;
+        }
     }
 }

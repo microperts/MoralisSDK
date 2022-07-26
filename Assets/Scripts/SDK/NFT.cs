@@ -1,9 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using MoralisUnity;
 using MoralisUnity.Web3Api.Models;
+using Nethereum.Hex.HexTypes;
+using Nethereum.Util;
 using UnityEngine;
 
 namespace MoralisSDK
@@ -71,6 +75,39 @@ namespace MoralisSDK
         {
             NftOwnerCollection nfts = await Moralis.Web3Api.Account.GetNFTs(Common.Instance.moralisUser.ethAddress.ToLower(), Moralis.CurrentChain.EnumValue);
             return nfts;
+        }
+
+        public async Task<bool> Send(int tokenId, string toAddress)
+        {
+            string fromAddress = Common.Instance.moralisUser.ethAddress;
+            string EIPTransferNFTABI = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
+            string FunctionName = "transferFrom";
+            object[] inputParams = { fromAddress, toAddress, tokenId };
+            HexBigInteger value = new HexBigInteger("0x0");
+            HexBigInteger gas = new HexBigInteger("0");
+            HexBigInteger gasprice = new HexBigInteger("0");
+
+            string txnHash;
+            try
+            {
+                // Execute the transaction.
+                txnHash = await Moralis.ExecuteContractFunction(contractAddress: Common.Instance.contractId,
+                    abi: EIPTransferNFTABI,
+                    functionName: FunctionName,
+                    args: inputParams,
+                    value: value,
+                    gas: gas,
+                    gasPrice: gasprice);
+
+                Debug.Log($"Transferring {tokenId} NFT ID from {fromAddress} to {toAddress}...  TxnHash: {txnHash}");
+            }
+            catch (Exception exp)
+            {
+                Debug.Log($"<color=red>Transfer of {tokenId} NFT ID from {fromAddress} to {toAddress} failed! with error {exp}</color>");
+                return false;
+            }
+
+            return await Common.Instance.IsTransactionSuccess(txnHash);
         }
     }
 }
